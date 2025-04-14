@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo Cannabis | The High Duchess</title>
+    <meta name="description" content="Portal educativo sobre las diferentes cepas de cannabis a nivel mundial con enfoque en México">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #4A6741;       /* Forest Green */
+            --color-secondary: #7A4E99;     /* Psychedelic Purple */
+            --color-accent: #CD9B4A;        /* Matte Gold/Amber */
+            --color-dark: #141414;          /* Velvet Black */
+            --color-light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--color-dark);
+            background-color: var(--color-light);
+        }
+        
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-accent { background-color: var(--color-accent); }
+        .bg-dark { background-color: var(--color-dark); }
+        
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .text-accent { color: var(--color-accent); }
+        .text-dark { color: var(--color-dark); }
+        
+        .border-primary { border-color: var(--color-primary); }
+        .border-secondary { border-color: var(--color-secondary); }
+        .border-accent { border-color: var(--color-accent); }
+        
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a5334;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--color-secondary);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #62407a;
+            transform: translateY(-2px);
+        }
+        
+        .cosmic-bg {
+            background: linear-gradient(135deg, #141414 0%, #1e1e3f 50%, #7A4E99 100%);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+        
+        .gradient-border {
+            position: relative;
+            border-radius: 15px;
+            padding: 5px;
+        }
+        
+        .gradient-border::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            padding: 2px;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+        }
+        
+        .strain-card {
+            transition: all 0.3s ease;
+        }
+        
+        .strain-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .custom-tooltip .tooltip-text {
+            visibility: hidden;
+            background-color: var(--color-dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 200px;
+        }
+        
+        .custom-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Estilos específicos para el canvas 3D */
+        #world-map-3d {
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        /* Estilos para el apartado de The High Duchess */
+        .duchess-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f0f0f0 100%);
+            border-left: 5px solid var(--color-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .duchess-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(122, 78, 153, 0.3);
+        }
+        
+        /* Diseño responsivo */
+        @media (max-width: 768px) {
+            .responsive-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #world-map-3d {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-dark text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-cannabis text-accent text-3xl mr-3"></i>
+                    <h1 class="text-xl font-bold">Mundo<span class="text-accent">Cannabis</span></h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#mapa-mundial" class="hover:text-accent transition">Mapa 3D</a>
+                    <a href="#tipos-cepas" class="hover:text-accent transition">Tipos de Cepas</a>
+                    <a href="#cepas-populares" class="hover:text-accent transition">Cepas Populares</a>
+                    <a href="#cepas-mexicanas" class="hover:text-accent transition">Cepas Mexicanas</a>
+                    <a href="#compuestos" class="hover:text-accent transition">Compuestos</a>
+                    <a href="#terpenos" class="hover:text-accent transition">Terpenos</a>
+                    <a href="#high-duchess" class="hover:text-accent transition">The High Duchess</a>
+                </nav>
+                <button class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="cosmic-bg text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Explorando el Mundo del Cannabis</h1>
+            <p class="text-xl mb-8 max-w-3xl mx-auto">Una biblioteca integral sobre cepas de cannabis a nivel mundial, sus propiedades, efectos y usos responsables.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#mapa-mundial" class="btn-primary px-6 py-3 rounded-full font-medium">Explorar Mapa 3D</a>
+                <a href="#high-duchess" class="btn-secondary px-6 py-3 rounded-full font-medium">The High Duchess</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introducción -->
+    <section class="py-16 bg-light">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                    <h2 class="text-3xl font-bold mb-4 text-primary">Conoce el Universo del Cannabis</h2>
+                    <p class="mb-4">El cannabis ha acompañado a la humanidad durante milenios, cultivado originalmente en Asia Central y posteriormente extendido a todas las regiones del planeta. Como resultado de su adaptación a diversos climas y de la selección genética a lo largo de los siglos, se han desarrollado cientos de variedades o "cepas" con propiedades únicas.</p>
+                    <p class="mb-4">En este portal educativo exploraremos las principales cepas a nivel mundial, sus orígenes, características y compuestos, con un enfoque especial en las variedades mexicanas que han tenido un impacto significativo en la cultura cannábica global.</p>
+                    <p class="font-medium">Esta plataforma busca proporcionar información científica y objetiva para promover un uso responsable y consciente.</p>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="gradient-border">
+                        <div class="glass-card p-8 text-dark">
+                            <h3 class="text-2xl font-bold mb-4 text-secondary">Objetivos Educativos</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span>Catalogar y visualizar las principales cepas de cannabis a nivel mundial</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span>Explicar de manera accesible los compuestos químicos y sus efectos</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span>Destacar el patrimonio cannábico mexicano y su influencia global</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span>Proporcionar información para un consumo consciente y responsable</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span>Combatir estigmas mediante información basada en evidencia</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualización 3D del Mapa Mundial -->
+    <section id="mapa-mundial" class="py-16 bg-dark text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-2 text-center">Mapa Mundial de Cepas de Cannabis</h2>
+            <p class="text-center mb-8 max-w-3xl mx-auto">Explora el origen geográfico de las principales cepas de cannabis. Gira el globo e interactúa con las regiones para descubrir las variedades nativas de cada zona.</p>
+            
+            <div class="relative">
+                <div id="world-map-3d" class="mx-auto shadow-xl"></div>
+                <div class="absolute top-4 right-4 bg-dark bg-opacity-70 p-3 rounded text-sm">
+                    <p><i class="fas fa-mouse-pointer mr-1"></i> Arrastra para girar</p>
+                    <p><i class="fas fa-search-plus mr-1"></i> Rueda del ratón para zoom</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-primary bg-opacity-20 p-4 rounded-lg">
+                    <h3 class="font-bold text-accent mb-2">Asia Central</h3>
+                    <p class="text-sm">Región de origen del cannabis, con variedades índicas robustas y de alta concentración de CBD.</p>
+                </div>
+                <div class="bg-primary bg-opacity-20 p-4 rounded-lg">
+                    <h3 class="font-bold text-accent mb-2">América Latina</h3>
+                    <p class="text-sm">Hogar de sativas de crecimiento alto y efectos energizantes, como la famosa Acapulco Gold.</p>
+                </div>
+                <div class="bg-primary bg-opacity-20 p-4 rounded-lg">
+                    <h3 class="font-bold text-accent mb-2">África</h3>
+                    <p class="text-sm">Ofrece cepas como Durban Poison, conocidas por sus efectos creativos y eufóricos.</p>
+                </div>
+                <div class="bg-primary bg-opacity-20 p-4 rounded-lg">
+                    <h3 class="font-bold text-accent mb-2">Europa/Norteamérica</h3>
+                    <p class="text-sm">Centros de creación de híbridos modernos, combinando genéticas de todo el mundo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tipos de Cepas -->
+    <section id="tipos-cepas" class="py-16 bg-light">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-2 text-center text-primary">Principales Tipos de Cannabis</h2>
+            <p class="text-center mb-12 max-w-3xl mx-auto">El cannabis se clasifica tradicionalmente en tres tipos principales, cada uno con características y efectos distintivos.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="strain-card shadow-lg rounded-xl overflow-hidden">
+                    <div class="h-40 bg-primary flex items-center justify-center">
+                        <i class="fas fa-leaf text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 text-primary">Índica</h3>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Plantas bajas y compactas</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Hojas anchas y oscuras</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Efectos relajantes y sedantes</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Alta en CBD, ideal para dolor</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Origen: regiones montañosas de Asia</span>
+                            </li>
+                        </ul>
+                        <div class="canvas-container">
+                            <canvas id="indica-chart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="strain-card shadow-lg rounded-xl overflow-hidden">
+                    <div class="h-40 bg-secondary flex items-center justify-center">
+                        <i class="fas fa-seedling text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 text-secondary">Sativa</h3>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Plantas altas y delgadas</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Hojas estrechas y claras</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Efectos energizantes y creativos</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Alta en THC, ideal para día</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Origen: regiones ecuatoriales</span>
+                            </li>
+                        </ul>
+                        <div class="canvas-container">
+                            <canvas id="sativa-chart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="strain-card shadow-lg rounded-xl overflow-hidden">
+                    <div class="h-40 bg-accent flex items-center justify-center">
+                        <i class="fas fa-cannabis text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 text-accent">Híbrida</h3>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Combinación de índica y sativa</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Características variables</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Efectos balanceados</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Perfiles de cannabinoides diversos</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2"></i>
+                                <span>Origen: cruces modernos</span>
+                            </li>
+                        </ul>
+                        <div class="canvas-container">
+                            <canvas id="hybrid-chart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 p-6 bg-primary bg-opacity-10 rounded-lg">
+                <h3 class="text-xl font-bold mb-4 text-dark">Nota Sobre la Clasificación</h3>
+                <p>Si bien la clasificación tradicional en índica, sativa e híbrida es ampliamente utilizada, la ciencia moderna ha demostrado que los efectos del cannabis están determinados más por su perfil específico de cannabinoides y terpenos que por su taxonomía. Muchas cepas "puras" hoy en día contienen genética mezclada debido a años de cruces, por lo que los consumidores deben prestar atención a los perfiles químicos para encontrar los efectos deseados.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cepas Populares -->
+    <section id="cepas-populares" class="py-16 bg-primary bg-opacity-5">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-2 text-center text-primary">Cepas Populares a Nivel Mundial</h2>
+            <p class="text-center mb-12 max-w-3xl mx-auto">Estas cepas son reconocidas por sus cualidades únicas y han ganado popularidad internacional por sus efectos y perfiles distintivos.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cepa 1 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-primary">Blue Dream</h3>
+                            <span class="px-3 py-1 bg-secondary text-white text-xs rounded-full">Híbrida</span>
+                        </div>
+                        <div class="flex items-center mt-2 mb-3">
+                            <div class="flex">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star-half-alt text-accent"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.5/5</span>
+                        </div>
+                        <p class="text-sm mb-4">Una de las cepas más populares en EE.UU., combina Blueberry (índica) con Haze (sativa) para crear un efecto equilibrado con notas a bayas.</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">THC</h4>
+                                <span class="text-lg font-bold">17-24%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">CBD</h4>
+                                <span class="text-lg font-bold">0.1-0.2%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">ORIGEN</h4>
+                                <span class="text-sm">California, EE.UU.</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">AROMA</h4>
+                                <span class="text-sm">Bayas, dulce</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Relajante</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Creativo</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Eufórico</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cepa 2 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-primary">OG Kush</h3>
+                            <span class="px-3 py-1 bg-primary text-white text-xs rounded-full">Índica</span>
+                        </div>
+                        <div class="flex items-center mt-2 mb-3">
+                            <div class="flex">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">5/5</span>
+                        </div>
+                        <p class="text-sm mb-4">Legendaria cepa con profundo aroma terroso y cítrico. Ha servido como base para numerosas variedades modernas. Potente y relajante.</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">THC</h4>
+                                <span class="text-lg font-bold">20-25%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">CBD</h4>
+                                <span class="text-lg font-bold">0.3%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">ORIGEN</h4>
+                                <span class="text-sm">California, EE.UU.</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">AROMA</h4>
+                                <span class="text-sm">Terroso, pino, cítrico</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Sedante</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Anti-estrés</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Relajante</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cepa 3 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-primary">White Widow</h3>
+                            <span class="px-3 py-1 bg-accent text-white text-xs rounded-full">Híbrida</span>
+                        </div>
+                        <div class="flex items-center mt-2 mb-3">
+                            <div class="flex">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="far fa-star text-accent"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4/5</span>
+                        </div>
+                        <p class="text-sm mb-4">Cepa holandesa legendaria con cristales blancos. Equilibra efectos cerebrales y corporales. Popular por su potencia y efectos eufóricos.</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">THC</h4>
+                                <span class="text-lg font-bold">18-25%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">CBD</h4>
+                                <span class="text-lg font-bold">0.1%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">ORIGEN</h4>
+                                <span class="text-sm">Países Bajos</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">AROMA</h4>
+                                <span class="text-sm">Terroso, especiado</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Eufórico</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Social</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Creativo</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cepa 4 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-primary">Sour Diesel</h3>
+                            <span class="px-3 py-1 bg-secondary text-white text-xs rounded-full">Sativa</span>
+                        </div>
+                        <div class="flex items-center mt-2 mb-3">
+                            <div class="flex">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star-half-alt text-accent"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.5/5</span>
+                        </div>
+                        <p class="text-sm mb-4">Cepa energizante con aroma intenso a combustible. Popular para uso diurno, ofrece un subidón energético y mental rápido y duradero.</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">THC</h4>
+                                <span class="text-lg font-bold">19-25%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">CBD</h4>
+                                <span class="text-lg font-bold">0.1-0.2%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">ORIGEN</h4>
+                                <span class="text-sm">Costa Este, EE.UU.</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">AROMA</h4>
+                                <span class="text-sm">Diésel, cítrico</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Energizante</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Cerebral</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Motivador</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cepa 5 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-primary">Purple Kush</h3>
+                            <span class="px-3 py-1 bg-primary text-white text-xs rounded-full">Índica</span>
+                        </div>
+                        <div class="flex items-center mt-2 mb-3">
+                            <div class="flex">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="far fa-star text-accent"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4/5</span>
+                        </div>
+                        <p class="text-sm mb-4">Una índica pura con coloración púrpura distintiva. Proporciona una profunda relajación corporal y es excelente para aliviar el insomnio.</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">THC</h4>
+                                <span class="text-lg font-bold">17-22%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">CBD</h4>
+                                <span class="text-lg font-bold">0.1%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">ORIGEN</h4>
+                                <span class="text-sm">California, EE.UU.</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">AROMA</h4>
+                                <span class="text-sm">Dulce, a tierra</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Sedante</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Relajante</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Anti-dolor</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cepa 6 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-primary">Jack Herer</h3>
+                            <span class="px-3 py-1 bg-secondary text-white text-xs rounded-full">Sativa</span>
+                        </div>
+                        <div class="flex items-center mt-2 mb-3">
+                            <div class="flex">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">5/5</span>
+                        </div>
+                        <p class="text-sm mb-4">Nombrada en honor al activista del cannabis. Cepa premiada con efectos cerebrales claros y un aroma a pino especiado distintivo.</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">THC</h4>
+                                <span class="text-lg font-bold">18-23%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">CBD</h4>
+                                <span class="text-lg font-bold">0.2%</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">ORIGEN</h4>
+                                <span class="text-sm">Países Bajos</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500">AROMA</h4>
+                                <span class="text-sm">Pino, especiado</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Creativo</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Eufórico</span>
+                            <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded-full">Enfocado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 text-center">
+                <p class="text-sm text-gray-600 mb-4">Las cepas mostradas son una pequeña selección de las más populares a nivel mundial. Existen cientos de variedades con propiedades únicas.</p>
+                <a href="#" class="btn-primary inline-block px-6 py-3 rounded-lg font-medium">Ver Más Cepas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cepas Mexicanas -->
+    <section id="cepas-mexicanas" class="py-16 cosmic-bg text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-2 text-center">Cepas Mexicanas Legendarias</h2>
+            <p class="text-center mb-12 max-w-3xl mx-auto">México ha contribuido significativamente a la cultura cannábica global. Las siguientes variedades se originaron en diferentes regiones del país y son reconocidas internacionalmente.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Acapulco Gold -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-accent">Acapulco Gold</h3>
+                        <span class="px-3 py-1 bg-secondary bg-opacity-30 text-white text-xs rounded-full">Sativa</span>
+                    </div>
+                    <p class="text-sm mb-4">Una de las cepas mexicanas más famosas del mundo, cultivada en las montañas cercanas a Acapulco. Conocida por su color dorado característico y efectos eufóricos. Ha sido apreciada desde los años 60s por su potencia y sabor único.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">THC</h4>
+                            <span class="text-lg font-bold text-accent">15-23%</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">REGIÓN</h4>
+                            <span class="text-sm">Guerrero</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">AROMA</h4>
+                            <span class="text-sm">Terroso, café, caramelo</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">EFECTOS</h4>
+                            <span class="text-sm">Energizante, creativo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-300 italic">"Una cepa histórica que ha inspirado canciones y literatura, considerada entre las mejores sativas puras."</p>
+                    </div>
+                </div>
+                
+                <!-- Mexican Sativa -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-accent">Mexican Sativa</h3>
+                        <span class="px-3 py-1 bg-secondary bg-opacity-30 text-white text-xs rounded-full">Sativa</span>
+                    </div>
+                    <p class="text-sm mb-4">Una cepa tradicional resistente al frío que se adaptó a las altitudes elevadas. Conocida por su tiempo de floración relativamente corto para una sativa y sus efectos cerebrales energizantes. Ha sido utilizada para crear numerosos híbridos.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">THC</h4>
+                            <span class="text-lg font-bold text-accent">14-17%</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">REGIÓN</h4>
+                            <span class="text-sm">Oaxaca</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">AROMA</h4>
+                            <span class="text-sm">Pino, cítrico</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">EFECTOS</h4>
+                            <span class="text-sm">Estimulante, social</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-300 italic">"Apreciada por cultivadores por su adaptabilidad y estabilidad genética, ha sido base para numerosos cruces."</p>
+                    </div>
+                </div>
+                
+                <!-- Oaxacan Highland -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-accent">Oaxacan Highland</h3>
+                        <span class="px-3 py-1 bg-secondary bg-opacity-30 text-white text-xs rounded-full">Sativa</span>
+                    </div>
+                    <p class="text-sm mb-4">Cultivada en las tierras altas de Oaxaca, esta variedad se caracteriza por crecer a grandes altitudes. Proporciona un efecto cerebral energizante y creativo. Históricamente ha sido utilizada en rituales por comunidades indígenas.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">THC</h4>
+                            <span class="text-lg font-bold text-accent">15-19%</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">REGIÓN</h4>
+                            <span class="text-sm">Oaxaca</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">AROMA</h4>
+                            <span class="text-sm">Especiado, terroso</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">EFECTOS</h4>
+                            <span class="text-sm">Psicodélico, creativo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-300 italic">"Conocida por sus propiedades psiquedélicas suaves y su capacidad para estimular la creatividad artística."</p>
+                    </div>
+                </div>
+                
+                <!-- Michoacan -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-accent">Michoacán</h3>
+                        <span class="px-3 py-1 bg-secondary bg-opacity-30 text-white text-xs rounded-full">Sativa</span>
+                    </div>
+                    <p class="text-sm mb-4">Originaria del estado de Michoacán, esta variedad era popular en los años 70 y 80. Planta alta con cogollos alargados y esparcidos. Ofrece un efecto equilibrado que combina energía mental con relajación corporal moderada.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">THC</h4>
+                            <span class="text-lg font-bold text-accent">15-18%</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">REGIÓN</h4>
+                            <span class="text-sm">Michoacán</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">AROMA</h4>
+                            <span class="text-sm">Dulce, especias</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">EFECTOS</h4>
+                            <span class="text-sm">Balanceado, eufórico</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-300 italic">"Cepa histórica que ganó popularidad en Norteamérica durante la época del auge de las importaciones desde México."</p>
+                    </div>
+                </div>
+                
+                <!-- Sinaloan -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-accent">Sinaloan</h3>
+                        <span class="px-3 py-1 bg-secondary bg-opacity-30 text-white text-xs rounded-full">Sativa</span>
+                    </div>
+                    <p class="text-sm mb-4">Originaria de la región de Sinaloa, esta sativa de altura media se caracteriza por su rápida floración comparada con otras sativas mexicanas. Ofrece un efecto energizante y un aroma a frutas tropicales.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">THC</h4>
+                            <span class="text-lg font-bold text-accent">14-17%</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">REGIÓN</h4>
+                            <span class="text-sm">Sinaloa</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">AROMA</h4>
+                            <span class="text-sm">Frutal, cítrico</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">EFECTOS</h4>
+                            <span class="text-sm">Energético, alerta</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-300 italic">"Valorada por cultivadores por su adaptabilidad a diferentes condiciones y su consistencia genética."</p>
+                    </div>
+                </div>
+                
+                <!-- Mexican Ruderalis -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-accent">Mexican Ruderalis</h3>
+                        <span class="px-3 py-1 bg-primary bg-opacity-30 text-white text-xs rounded-full">Ruderalis</span>
+                    </div>
+                    <p class="text-sm mb-4">Una variante poco común que crece silvestre en algunas regiones del norte de México. A diferencia de otras variedades, florece automáticamente según su edad y no por el ciclo de luz. Contiene niveles moderados de THC pero alto CBD.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">THC</h4>
+                            <span class="text-lg font-bold text-accent">6-10%</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">REGIÓN</h4>
+                            <span class="text-sm">Norte de México</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">AROMA</h4>
+                            <span class="text-sm">Silvestre, terroso</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-300">EFECTOS</h4>
+                            <span class="text-sm">Relajante, medicinal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-300 italic">"Aunque menos potente, su genética ha sido valiosa para desarrollar variedades autoflorecientes modernas."</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12">
+                <div class="gradient-border">
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold mb-4 text-accent">El Legado Cannábico de México</h3>
+                        <p class="mb-4">Las variedades landrace mexicanas han sido fundamentales en el desarrollo de la genética cannábica moderna. Su resistencia natural, adaptabilidad y perfiles de efectos únicos las convirtieron en base para muchos de los híbridos populares que conocemos hoy.</p>
+                        <p>Cepas como Acapulco Gold se mencionan en la cultura popular desde los años 60, y la genética mexicana ha contribuido a variedades legendarias como Haze, Skunk y numerosos híbridos modernos. Actualmente, con los cambios legislativos en México, existe un creciente interés en preservar y estudiar estas variedades autóctonas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Compuestos del Cannabis -->
+    <section id="compuestos" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-2 text-center text-primary">Compuestos del Cannabis</h2>
+            <p class="text-center mb-12 max-w-3xl mx-auto">El cannabis contiene más de 100 cannabinoides diferentes, además de terpenos y flavonoides que trabajan en conjunto para producir sus efectos característicos.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-primary bg-opacity-5 p-8 rounded-xl">
+                    <h3 class="text-2xl font-bold mb-6 text-primary text-center">Principales Cannabinoides</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="flex bg-white p-4 rounded-lg shadow-sm">
+                            <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                                <span class="text-white font-bold text-lg">THC</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-primary">Tetrahidrocannabinol (THC)</h4>
+                                <p class="text-sm">Principal compuesto psicoactivo responsable del "high". Puede proporcionar alivio del dolor, reducción de náuseas y estimulación del apetito. Su concentración varía ampliamente según la cepa.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex bg-white p-4 rounded-lg shadow-sm">
+                            <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                                <span class="text-white font-bold text-lg">CBD</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-secondary">Cannabidiol (CBD)</h4>
+                                <p class="text-sm">No psicoactivo, se ha investigado por sus potenciales beneficios terapéuticos, incluyendo propiedades antiinflamatorias, analgésicas y ansiolíticas. Puede moderar los efectos del THC.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex bg-white p-4 rounded-lg shadow-sm">
+                            <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                                <span class="text-white font-bold text-lg">CBN</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-accent">Cannabinol (CBN)</h4>
+                                <p class="text-sm">Resultado de la degradación del THC. Ligeramente psicoactivo, se asocia con efectos sedantes, lo que lo hace interesante para trastornos del sueño. Aparece en mayor cantidad en cannabis envejecido.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex bg-white p-4 rounded-lg shadow-sm">
+                            <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                                <span class="text-white font-bold text-lg">CBG</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-primary">Cannabigerol (CBG)</h4>
+                                <p class="text-sm">Precursor de otros cannabinoides. No psicoactivo, con potenciales propiedades antibacterianas, antiinflamatorias y neuroprotectoras. Presente en bajas cantidades en la mayoría de las cepas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-2xl font-bold mb-6 text-primary text-center">El Espectro Completo</h3>
+                    
+                    <div class="bg-primary bg-opacity-5 p-6 rounded-xl mb-6">
+                        <h4 class="font-bold text-primary mb-3">¿Qué significa "Espectro Completo"?</h4>
+                        <p class="mb-4">El término "espectro completo" se refiere a productos de cannabis que contienen la gama completa de compuestos beneficiosos que se encuentran naturalmente en la planta, incluyendo:</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>Cannabinoides (THC, CBD, CBG, CBN, etc.)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>Terpenos (aromas y sabores)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>Flavonoides (compuestos con propiedades antioxidantes)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>Ácidos grasos y otros nutrientes</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-secondary bg-opacity-10 p-6 rounded-xl">
+                        <h4 class="font-bold text-secondary mb-3">El Efecto Séquito (Entourage Effect)</h4>
+                        <p class="mb-3">Este fenómeno describe cómo los diversos compuestos del cannabis trabajan sinérgicamente para producir efectos más potentes que cualquier componente aislado.</p>
+                        <p>Por ejemplo, el CBD puede moderar algunos de los efectos secundarios no deseados del THC, mientras que ciertos terpenos pueden potenciar efectos específicos o añadir beneficios terapéuticos adicionales. Esta sinergia explica por qué los productos de espectro completo suelen considerarse más efectivos que los compuestos aislados.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold mb-6 text-primary text-center">Visualización de Perfiles de Cannabinoides</h3>
+                <div class="bg-white shadow-lg rounded-xl p-6">
+                    <canvas id="cannabinoid-chart" height="250"></canvas>
+                </div>
+            </div>
+            
+            <div class="p-6 bg-primary bg-opacity-10 rounded-lg">
+                <h3 class="text-xl font-bold mb-4 text-primary">Nota Sobre los Compuestos</h3>
+                <p class="mb-3">La investigación sobre los cannabinoides y otros compuestos del cannabis continúa evolucionando. Aunque el THC y el CBD son los más estudiados, la planta contiene docenas de otros cannabinoides con potenciales propiedades terapéuticas.</p>
+                <p>Las proporciones de estos compuestos varían significativamente entre cepas, lo que explica las diferentes experiencias y efectos. Al elegir una variedad, considere no solo el contenido de THC, sino la composición general de cannabinoides y terpenos para encontrar el perfil más adecuado para sus necesidades.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Terpenos -->
+    <section id="terpenos" class="py-16 bg-secondary bg-opacity-5">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-2 text-center text-secondary">El Mundo de los Terpenos</h2>
+            <p class="text-center mb-12 max-w-3xl mx-auto">Los terpenos son compuestos aromáticos que dan a cada cepa su sabor y aroma característicos, además de contribuir significativamente a sus efectos.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <!-- Terpeno 1 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="h-20 bg-accent flex items-center justify-center">
+                        <i class="fas fa-lemon text-white text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3 text-accent">Limoneno</h3>
+                        <p class="text-sm mb-4">Aroma cítrico, como limón o naranja. Común en cepas como Lemon Haze y OG Kush.</p>
+                        
+                        <h4 class="text-sm font-semibold mb-2">Potenciales efectos:</h4>
+                        <ul class="space-y-1 mb-4 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-accent mt-1 mr-2"></i>
+                                <span>Elevación del estado de ánimo</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-accent mt-1 mr-2"></i>
+                                <span>Alivio del estrés</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-accent mt-1 mr-2"></i>
+                                <span>Propiedades antibacterianas</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="custom-tooltip">
+                            <span class="text-xs text-primary font-medium underline cursor-pointer">¿También presente en?</span>
+                            <span class="tooltip-text">Limones, naranjas, pomelos y otras cítricas, así como en hierbas como el romero y la menta.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terpeno 2 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="h-20 bg-primary flex items-center justify-center">
+                        <i class="fas fa-tree text-white text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3 text-primary">Pineno</h3>
+                        <p class="text-sm mb-4">Aroma a pino, bosque y hierba. Predominante en cepas como Jack Herer y Bubba Kush.</p>
+                        
+                        <h4 class="text-sm font-semibold mb-2">Potenciales efectos:</h4>
+                        <ul class="space-y-1 mb-4 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-primary mt-1 mr-2"></i>
+                                <span>Mejora del estado de alerta</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-primary mt-1 mr-2"></i>
+                                <span>Broncodilatador (ayuda respiratoria)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-primary mt-1 mr-2"></i>
+                                <span>Antiinflamatorio</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="custom-tooltip">
+                            <span class="text-xs text-primary font-medium underline cursor-pointer">¿También presente en?</span>
+                            <span class="tooltip-text">Pinos, coníferas, romero, salvia y otras plantas resinosas. Utilizado en aromaterapia para mejorar la claridad mental.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terpeno 3 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="h-20 bg-secondary flex items-center justify-center">
+                        <i class="fas fa-spa text-white text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3 text-secondary">Linalool</h3>
+                        <p class="text-sm mb-4">Aroma floral y lavanda. Presente en cepas como Lavender, LA Confidential y Amnesia Haze.</p>
+                        
+                        <h4 class="text-sm font-semibold mb-2">Potenciales efectos:</h4>
+                        <ul class="space-y-1 mb-4 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-secondary mt-1 mr-2"></i>
+                                <span>Relajación y sedación</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-secondary mt-1 mr-2"></i>
+                                <span>Alivio de la ansiedad</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-secondary mt-1 mr-2"></i>
+                                <span>Propiedades anticonvulsivas</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="custom-tooltip">
+                            <span class="text-xs text-primary font-medium underline cursor-pointer">¿También presente en?</span>
+                            <span class="tooltip-text">Lavanda, albahaca, hierba de limón y otras plantas aromáticas. Usado frecuentemente en aromaterapia para relajación.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terpeno 4 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="h-20 bg-accent flex items-center justify-center">
+                        <i class="fas fa-pepper-hot text-white text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3 text-accent">Cariofileno</h3>
+                        <p class="text-sm mb-4">Aroma picante, especiado y a pimienta. Notable en Girl Scout Cookies, Sour Diesel y Skywalker OG.</p>
+                        
+                        <h4 class="text-sm font-semibold mb-2">Potenciales efectos:</h4>
+                        <ul class="space-y-1 mb-4 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-accent mt-1 mr-2"></i>
+                                <span>Antiinflamatorio</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-accent mt-1 mr-2"></i>
+                                <span>Alivio del dolor</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-accent mt-1 mr-2"></i>
+                                <span>Protección gástrica</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="custom-tooltip">
+                            <span class="text-xs text-primary font-medium underline cursor-pointer">¿También presente en?</span>
+                            <span class="tooltip-text">Pimienta negra, clavo, canela y otras especias. El único terpeno que también interactúa con el sistema endocannabinoide.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terpeno 5 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="h-20 bg-primary flex items-center justify-center">
+                        <i class="fas fa-apple-alt text-white text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3 text-primary">Mirceno</h3>
+                        <p class="text-sm mb-4">Aroma terroso, a frutas y cítricos. El terpeno más común en el cannabis, abundante en White Widow y OG Kush.</p>
+                        
+                        <h4 class="text-sm font-semibold mb-2">Potenciales efectos:</h4>
+                        <ul class="space-y-1 mb-4 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-primary mt-1 mr-2"></i>
+                                <span>Sedación y relajación</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-primary mt-1 mr-2"></i>
+                                <span>Potenciador de efectos del THC</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-primary mt-1 mr-2"></i>
+                                <span>Relajante muscular</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="custom-tooltip">
+                            <span class="text-xs text-primary font-medium underline cursor-pointer">¿También presente en?</span>
+                            <span class="tooltip-text">Mangos, lúpulo, hierba de limón y tomillo. Se cree que aumenta la permeabilidad de la barrera hematoencefálica.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terpeno 6 -->
+                <div class="strain-card bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="h-20 bg-secondary flex items-center justify-center">
+                        <i class="fas fa-seedling text-white text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3 text-secondary">Terpinoleno</h3>
+                        <p class="text-sm mb-4">Aroma fresco, herbáceo y ligeramente cítrico. Presente en Jack Herer, Ghost Train Haze y Dutch Treat.</p>
+                        
+                        <h4 class="text-sm font-semibold mb-2">Potenciales efectos:</h4>
+                        <ul class="space-y-1 mb-4 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-secondary mt-1 mr-2"></i>
+                                <span>Estimulante y energizante</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-secondary mt-1 mr-2"></i>
+                                <span>Antioxidante</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-angle-right text-secondary mt-1 mr-2"></i>
+                                <span>Propiedades antibacterianas</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="custom-tooltip">
+                            <span class="text-xs text-primary font-medium underline cursor-pointer">¿También presente en?</span>
+                            <span class="tooltip-text">Salvia, comino, nuez moscada y árbol de té. Menos común que otros terpenos pero con efectos distintivos.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold mb-6 text-secondary text-center">Perfil de Terpenos en Cepas Populares</h3>
+                <div class="bg-white shadow-lg rounded-xl p-6">
+                    <canvas id="terpenes-chart" height="250"></canvas>
+                </div>
+            </div>
+            
+            <div class="p-6 bg-secondary bg-opacity-10 rounded-lg">
+                <h3 class="text-xl font-bold mb-4 text-secondary">La Importancia de los Terpenos</h3>
+                <p class="mb-3">Los terpenos son mucho más que simples compuestos aromáticos; desempeñan un papel crucial en la experiencia general del cannabis a través del "efecto séquito". Interactúan sinérgicamente con los cannabinoides para modular sus efectos, potenciando ciertos aspectos y mitigando otros.</p>
+                <p>Al seleccionar una cepa, prestar atención a su perfil de terpenos puede ser tan importante como considerar su contenido de THC o CBD, especialmente para usos terapéuticos específicos. La industria moderna del cannabis está poniendo cada vez más énfasis en la preservación y análisis de estos compuestos aromáticos.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- The High Duchess Blog -->
+    <section id="high-duchess" class="py-16 cosmic-bg text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-4xl font-bold mb-4 text-accent">The High Duchess</h2>
+                    <p class="text-xl mb-4">Guía lisérgica del placer consciente</p>
+                    <p class="mb-6">Un espacio dedicado a la exploración sensorial y consciente de diferentes cepas. A través de catas detalladas, compartimos experiencias, reflexiones y apreciaciones sobre el universo cannábico desde una perspectiva elevada.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="btn-accent bg-accent px-6 py-2 rounded-full text-white hover:bg-opacity-90 transition">Suscríbete</a>
+                        <a href="#" class="px-6 py-2 rounded-full border border-white hover:border-accent hover:text-accent transition">Contacto</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="gradient-border max-w-md">
+                        <div class="glass-card p-6">
+                            <h3 class="text-xl font-bold mb-4 text-accent text-center">Manifiesto de La Dama High</h3>
+                            <p class="italic text-sm mb-3">"Me llaman The High Duchess, porque he hecho del estado elevado un altar íntimo. Aquí no vengo a promover ni a corregir, sino a compartir desde lo más honesto de mí."</p>
+                            <p class="italic text-sm mb-3">"Fui juzgada por explorar lo que me hace libre, pero comprendí que ser libre es desobedecer suavemente lo que no vibra contigo."</p>
+                            <p class="italic text-sm mb-3">"Este personaje nace del deseo de conocerme profundamente, de catar mis estados con respeto, de acariciar mis sombras con flores y fuego."</p>
+                            <p class="italic text-sm text-center mt-4">"Soy The High Duchess, y si estás aquí, es porque también percibes la magia y coherencia en lo prohibido."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="text-2xl font-bold mb-8 text-center">Catas Recientes</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cata 1 -->
+                <div class="duchess-card bg-white text-dark rounded-lg overflow-hidden shadow-lg">
+                    <div class="p-6">
+                        <span class="px-3 py-1 bg-accent text-white text-xs rounded-full inline-block mb-3">Sativa</span>
+                        <h3 class="text-xl font-bold mb-2">Acapulco Gold: Un Viaje a los 70's</h3>
+                        <p class="text-sm text-gray-600 mb-3">Fecha: 15 de marzo de 2025</p>
+                        <p class="text-sm mb-4">Una degustación sensorial de esta legendaria cepa mexicana, explorando sus matices aromáticos y los estados mentales que despierta. Un recorrido por su historia y su impacto cultural.</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-1">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star-half-alt text-accent"></i>
+                            </div>
+                            <a href="#" class="text-secondary hover:underline text-sm">Leer más</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cata 2 -->
+                <div class="duchess-card bg-white text-dark rounded-lg overflow-hidden shadow-lg">
+                    <div class="p-6">
+                        <span class="px-3 py-1 bg-primary text-white text-xs rounded-full inline-block mb-3">Índica</span>
+                        <h3 class="text-xl font-bold mb-2">Northern Lights: La Aurora Interior</h3>
+                        <p class="text-sm text-gray-600 mb-3">Fecha: 2 de abril de 2025</p>
+                        <p class="text-sm mb-4">Análisis profundo de esta índica clásica, examinando cómo sus notas dulces y especiadas complementan una experiencia corporal envolvente y renovadora.</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-1">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                            </div>
+                            <a href="#" class="text-secondary hover:underline text-sm">Leer más</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cata 3 -->
+                <div class="duchess-card bg-white text-dark rounded-lg overflow-hidden shadow-lg">
+                    <div class="p-6">
+                        <span class="px-3 py-1 bg-secondary text-white text-xs rounded-full inline-block mb-3">Híbrida</span>
+                        <h3 class="text-xl font-bold mb-2">Gelato: El Postre Prohibido</h3>
+                        <p class="text-sm text-gray-600 mb-3">Fecha: 20 de abril de 2025</p>
+                        <p class="text-sm mb-4">Degustación detallada de esta híbrida moderna con aroma a postre, detallando su perfil de terpenos, efectos balanceados y el ritual perfecto para apreciarla.</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-1">
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="fas fa-star text-accent"></i>
+                                <i class="far fa-star text-accent"></i>
+                            </div>
+                            <a href="#" class="text-secondary hover:underline text-sm">Leer más</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <a href="#" class="btn-accent bg-accent px-8 py-3 rounded-full text-white inline-block hover:bg-opacity-90 transition">Ver Todas las Catas</a>
+            </div>
+            
+            <div class="mt-16">
+                <h3 class="text-2xl font-bold mb-8 text-center">Próximas Catas</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xl font-bold text-accent">Oaxacan Highland</h4>
+                            <span class="text-sm">Mayo 2025</span>
+                        </div>
+                        <p class="mb-4">Un viaje a las montañas de Oaxaca a través de esta cepa histórica. Exploraremos su conexión con rituales tradicionales y sus efectos únicos.</p>
+                        <div class="flex space-x-3">
+                            <span class="px-2 py-1 bg-white bg-opacity-20 text-white text-xs rounded-full">Sativa Mexicana</span>
+                            <span class="px-2 py-1 bg-white bg-opacity-20 text-white text-xs rounded-full">Landrace</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xl font-bold text-accent">Blue Dream vs Mexican Sativa</h4>
+                            <span class="text-sm">Junio 2025</span>
+                        </div>
+                        <p class="mb-4">Cata comparativa entre una cepa moderna popular y una sativa mexicana tradicional, analizando similitudes, diferencias y evolución genética.</p>
+                        <div class="flex space-x-3">
+                            <span class="px-2 py-1 bg-white bg-opacity-20 text-white text-xs rounded-full">Comparativa</span>
+                            <span class="px-2 py-1 bg-white bg-opacity-20 text-white text-xs rounded-full">Evolución Genética</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-cannabis text-accent text-3xl mr-3"></i>
+                        <h2 class="text-xl font-bold">Mundo<span class="text-accent">Cannabis</span></h2>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4">Un portal educativo dedicado a proporcionar información objetiva y científica sobre el cannabis, sus variedades y efectos.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Enlaces Rápidos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#mapa-mundial" class="text-gray-400 hover:text-accent transition">Mapa 3D</a></li>
+                        <li><a href="#tipos-cepas" class="text-gray-400 hover:text-accent transition">Tipos de Cepas</a></li>
+                        <li><a href="#cepas-populares" class="text-gray-400 hover:text-accent transition">Cepas Populares</a></li>
+                        <li><a href="#cepas-mexicanas" class="text-gray-400 hover:text-accent transition">Cepas Mexicanas</a></li>
+                        <li><a href="#compuestos" class="text-gray-400 hover:text-accent transition">Compuestos</a></li>
+                        <li><a href="#terpenos" class="text-gray-400 hover:text-accent transition">Terpenos</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">The High Duchess</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#high-duchess" class="text-gray-400 hover:text-accent transition">Sobre nosotros</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Catas Recientes</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Suscripción</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Contacto</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Aviso Legal</h3>
+                    <p class="text-sm text-gray-400 mb-4">Este portal tiene fines exclusivamente educativos e informativos. No promueve el consumo de cannabis en lugares donde es ilegal. La información proporcionada no constituye asesoramiento médico.</p>
+                    <p class="text-sm text-gray-400">El uso responsable y la conformidad con las leyes locales es responsabilidad de cada individuo.</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
+                <p>© 2025 MundoCannabis & The High Duchess. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Inicialización del mapa 3D
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar el mapa 3D
+            initializeWorldMap();
+            
+            // Inicializar los gráficos
+            initializeCharts();
+            
+            // Inicializar tooltips y otros elementos interactivos
+            initializeInteractiveElements();
+        });
+        
+        function initializeWorldMap() {
+            const container = document.getElementById('world-map-3d');
+            
+            // Configuración básica de Three.js
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x141414);
+            
+            const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            camera.position.z = 2;
+            
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Añadir controles de órbita
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Crear el globo terráqueo
+            const globeGeometry = new THREE.SphereGeometry(1, 64, 64);
+            const textureLoader = new THREE.TextureLoader();
+            
+            // Usar un material simple para el ejemplo
+            const globeMaterial = new THREE.MeshPhongMaterial({
+                color: 0x4A6741,
+                emissive: 0x072534,
+                side: THREE.DoubleSide,
+                flatShading: true
+            });
+            
+            const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+            scene.add(globe);
+            
+            // Añadir iluminación
+            const light1 = new THREE.DirectionalLight(0xffffff, 1);
+            light1.position.set(1, 1, 1);
+            scene.add(light1);
+            
+            const light2 = new THREE.DirectionalLight(0x7A4E99, 0.5);
+            light2.position.set(-1, -1, -1);
+            scene.add(light2);
+            
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+            
+            // Añadir puntos de interés (regiones cannábicas)
+            addRegionMarkers(scene);
+            
+            // Función de animación
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                globe.rotation.y += 0.001;
+                renderer.render(scene, camera);
+            }
+            
+            // Iniciar animación
+            animate();
+            
+            // Adaptación responsive
+            window.addEventListener('resize', function() {
+                camera.aspect = container.offsetWidth / container.offsetHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.offsetWidth, container.offsetHeight);
+            });
+        }
+        
+        function addRegionMarkers(scene) {
+            // Definir regiones importantes para el cannabis
+            const regions = [
+                { name: "Afganistán", lat: 33.93911, lon: 67.709953, color: 0xCD9B4A },
+                { name: "Hindu Kush", lat: 36.14, lon: 71.84, color: 0xCD9B4A },
+                { name: "Tailandia", lat: 15.870032, lon: 100.992541, color: 0xCD9B4A },
+                { name: "Acapulco", lat: 16.853, lon: -99.823, color: 0x7A4E99 },
+                { name: "Jamaica", lat: 18.109581, lon: -77.297508, color: 0x7A4E99 },
+                { name: "Durban", lat: -29.85, lon: 31.02, color: 0x7A4E99 },
+                { name: "Ámsterdam", lat: 52.37, lon: 4.89, color: 0x4A6741 },
+                { name: "California", lat: 36.77, lon: -119.41, color: 0x4A6741 },
+                { name: "Oaxaca", lat: 17.06, lon: -96.72, color: 0x7A4E99 }
+            ];
+            
+            // Crear marcadores para cada región
+            regions.forEach(region => {
+                const markerGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+                const markerMaterial = new THREE.MeshBasicMaterial({ color: region.color });
+                const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+                
+                // Convertir coordenadas a posición 3D
+                const phi = (90 - region.lat) * (Math.PI / 180);
+                const theta = (region.lon + 180) * (Math.PI / 180);
+                
+                marker.position.x = -1.05 * Math.sin(phi) * Math.cos(theta);
+                marker.position.y = 1.05 * Math.cos(phi);
+                marker.position.z = 1.05 * Math.sin(phi) * Math.sin(theta);
+                
+                scene.add(marker);
+            });
+        }
+        
+        function initializeCharts() {
+            // Gráfico de indica
+            const indicaCtx = document.getElementById('indica-chart').getContext('2d');
+            new Chart(indicaCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Relajación', 'Alivio Dolor', 'Sueño', 'Apetito', 'Ánimo'],
+                    datasets: [{
+                        label: 'Perfil de Efectos',
+                        data: [9, 8, 9, 7, 4],
+                        backgroundColor: 'rgba(74, 103, 65, 0.2)',
+                        borderColor: 'rgba(74, 103, 65, 1)',
+                        pointBackgroundColor: 'rgba(74, 103, 65, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de sativa
+            const sativaCtx = document.getElementById('sativa-chart').getContext('2d');
+            new Chart(sativaCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Relajación', 'Alivio Dolor', 'Sueño', 'Apetito', 'Ánimo'],
+                    datasets: [{
+                        label: 'Perfil de Efectos',
+                        data: [5, 6, 3, 5, 9],
+                        backgroundColor: 'rgba(122, 78, 153, 0.2)',
+                        borderColor: 'rgba(122, 78, 153, 1)',
+                        pointBackgroundColor: 'rgba(122, 78, 153, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de híbrida
+            const hybridCtx = document.getElementById('hybrid-chart').getContext('2d');
+            new Chart(hybridCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Relajación', 'Alivio Dolor', 'Sueño', 'Apetito', 'Ánimo'],
+                    datasets: [{
+                        label: 'Perfil de Efectos',
+                        data: [7, 7, 6, 6, 7],
+                        backgroundColor: 'rgba(205, 155, 74, 0.2)',
+                        borderColor: 'rgba(205, 155, 74, 1)',
+                        pointBackgroundColor: 'rgba(205, 155, 74, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de cannabinoides
+            const cannabinoidCtx = document.getElementById('cannabinoid-chart').getContext('2d');
+            new Chart(cannabinoidCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Acapulco Gold', 'OG Kush', 'CBD Therapy', 'White Widow', 'Northern Lights'],
+                    datasets: [
+                        {
+                            label: 'THC %',
+                            data: [18, 23, 0.5, 20, 16],
+                            backgroundColor: 'rgba(122, 78, 153, 0.7)'
+                        },
+                        {
+                            label: 'CBD %',
+                            data: [0.1, 0.3, 18, 0.1, 0.2],
+                            backgroundColor: 'rgba(74, 103, 65, 0.7)'
+                        },
+                        {
+                            label: 'CBN %',
+                            data: [0.2, 0.1, 0.3, 0.1, 0.3],
+                            backgroundColor: 'rgba(205, 155, 74, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Perfiles de Cannabinoides por Cepa'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Porcentaje (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de terpenos
+            const terpenesCtx = document.getElementById('terpenes-chart').getContext('2d');
+            new Chart(terpenesCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Limoneno', 'Mirceno', 'Pineno', 'Linalool', 'Cariofileno', 'Terpinoleno'],
+                    datasets: [{
+                        data: [12, 19, 8, 15, 10, 5],
+                        backgroundColor: [
+                            'rgba(205, 155, 74, 0.7)',
+                            'rgba(74, 103, 65, 0.7)',
+                            'rgba(122, 78, 153, 0.7)',
+                            'rgba(205, 155, 74, 0.7)',
+                            'rgba(74, 103, 65, 0.7)',
+                            'rgba(122, 78, 153, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribución Promedio de Terpenos'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initializeInteractiveElements() {
+            // Añadir funcionalidad al menú móvil
+            const menuButton = document.querySelector('.md\\:hidden');
+            menuButton.addEventListener('click', function() {
+                const nav = document.querySelector('.md\\:flex');
+                nav.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
