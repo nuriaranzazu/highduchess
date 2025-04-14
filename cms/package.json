@@ -1,0 +1,11 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start"
+  },
+  "dependencies": {
+    "@strapi/strapi": "^4.15.4"
+  }
+}

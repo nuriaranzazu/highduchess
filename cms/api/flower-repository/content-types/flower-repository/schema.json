@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "flower_entries",
+  "info": {
+    "name": "Flower Repository",
+    "description": "Cannabis strain database"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "strainName": {
+      "type": "string",
+      "required": true
+    },
+    "lineage": {
+      "type": "string"
+    },
+    "thcContent": {
+      "type": "decimal",
+      "min": 0,
+      "max": 100
+    },
+    "cbdContent": {
+      "type": "decimal",
+      "min": 0,
+      "max": 100
+    },
+    "terpenes": {
+      "type": "json"
+    },
+    "effects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api\:effect.effect"
+    },
+    "aromaProfile": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api\:aroma.aroma"
+    },
+    "flavorProfile": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api\:flavor.flavor"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"]
+    },
+    "growingInfo": {
+      "type": "richtext"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api\:category.category"
+    }
+  }
+}
