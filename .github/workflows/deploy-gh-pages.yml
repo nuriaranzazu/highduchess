@@ -40,6 +40,8 @@ jobs:
           rm -f package-lock.json
       - name: Install dependencies
         run: npm install --no-optional
+      - name: Configure Rollup to use JS implementation
+        run: echo "ROLLUP_SKIP_NODEJS=1" >> $GITHUB_ENV
       - name: List node_modules/.bin # DEBUG
         run: ls -al node_modules/.bin
       # Temporarily disabling lint and test steps to allow deployment
