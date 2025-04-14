@@ -40,6 +40,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json # Cache dependencies based on lock file in frontend
       - name: Install dependencies
         run: npm ci
+      - name: List node_modules/.bin # DEBUG
+        run: ls -al node_modules/.bin
       - name: Lint
         run: npm run lint
       - name: Test
