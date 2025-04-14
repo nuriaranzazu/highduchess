@@ -42,6 +42,8 @@ jobs:
         run: npx eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
       - name: Test
         run: npx vitest run
+        env:
+          ROLLUP_SKIP_NODEJS: 1 # Force JS implementation for Rollup within Vitest
       - name: Build
         run: npm run build
       - name: Setup Pages
