@@ -34,8 +34,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18 # Or your preferred Node.js version
-      - name: Update package-lock.json
-        run: npm install
+      - name: Clean installation files
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+      - name: Install dependencies
+        run: npm install --no-optional
       - name: List node_modules/.bin # DEBUG
         run: ls -al node_modules/.bin
       # Temporarily disabling lint and test steps to allow deployment
