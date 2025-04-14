@@ -34,10 +34,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18 # Or your preferred Node.js version
-      - name: Remove package-lock.json
-        run: rm -f package-lock.json
       - name: Install dependencies
-        run: npm install --no-package-lock
+        run: npm ci
       - name: List node_modules/.bin # DEBUG
         run: ls -al node_modules/.bin
       - name: Lint
