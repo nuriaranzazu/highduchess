@@ -34,49 +34,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18 # Or your preferred Node.js version
-      - name: Clean installation files
-        run: |
-          rm -rf node_modules
-          rm -f package-lock.json
       - name: Install dependencies
-        run: npm install --no-optional
-      - name: Configure Rollup to use JS implementation
-        run: echo "ROLLUP_SKIP_NODEJS=1" >> $GITHUB_ENV
+        run: npm install
       - name: List node_modules/.bin # DEBUG
         run: ls -al node_modules/.bin
-      # Temporarily disabling lint and test steps to allow deployment
-      # - name: Lint
-      #   run: npx eslint@8 . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
-      # - name: Test
-      #   run: npm run test -- --run
-      # Skip the problematic Vite build
-      # - name: Build
-      #   run: npm run build
-      - name: Create static build
-        run: |
-          mkdir -p dist
-          # Create a basic index.html
-          cat > dist/index.html << 'EOL'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>High Duchess</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; text-align: center; }
-              h1 { color: #333; }
-              p { color: #666; }
-            </style>
-          </head>
-          <body>
-            <h1>High Duchess</h1>
-            <p>Site is being deployed. Please check back soon for the full website.</p>
-            <p>This is a temporary placeholder page.</p>
-          </body>
-          </html>
-          EOL
-          echo "Static site created in dist/"
+      - name: Lint
+        run: npx eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
+      - name: Test
+        run: npx vitest run
+      - name: Build
+        run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
